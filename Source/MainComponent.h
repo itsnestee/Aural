@@ -23,19 +23,22 @@ public:
     void paint (juce::Graphics& g) override;
     void resized() override;
     void changeListenerCallback(juce::ChangeBroadcaster* source) override;
+   
     
     enum nAudioState
     {
-        Stropped,
+        Stopped,
         Starting,
         Playing,
-        Pausing,
         Paused,
+        Resume,
         Stopping
     };
     
     nAudioState nState;
-
+    
+    void changeState(nAudioState newState);
+    
 private:
     //==============================================================================
     // Your private member variables go here...
