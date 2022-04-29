@@ -7,27 +7,31 @@ MainComponent::MainComponent() : nState(Stopped)
     // you add any child components.
     setSize (800, 600);
 
-    // Some platforms require permissions to open input channels so request that here
-    if (juce::RuntimePermissions::isRequired (juce::RuntimePermissions::recordAudio)
-        && ! juce::RuntimePermissions::isGranted (juce::RuntimePermissions::recordAudio))
-    {
-        juce::RuntimePermissions::request (juce::RuntimePermissions::recordAudio,
-                                           [&] (bool granted) { setAudioChannels (granted ? 2 : 0, 2); });
-    }
-    else
-    {
-        // Specify the number of input and output channels that we want to open
-        setAudioChannels (2, 2);
-    }
+    nOpenFile.setButtonText ("Open...");
+    nOpenFile.onClick = [this] { nOpenFileClicked(); };
+    
+    
+    nPlay.setButtonText ("Play");
+    nPlay.onClick = [this] { nPlayClicked(); };
+    nPlay.setColour (juce::TextButton::buttonColourId, juce::Colours::green);
+    nPlay.setEnabled (false);
+    
+    
+    nStop.setButtonText ("Stop");
+    nStop.onClick = [this] { nStopClicked(); };
+    nStop.setColour (juce::TextButton::buttonColourId, juce::Colours::red);
+    nStop.setEnabled (false);
     
     
     addAndMakeVisible(&nPlay);
     addAndMakeVisible(&nStop);
-    addAndMakeVisible(&nPause);
+    //addAndMakeVisible(&nPause);
     addAndMakeVisible(&nOpenFile);
     
     nManager.registerBasicFormats();
     nTSource.addChangeListener(this);
+    
+    setAudioChannels (2, 2);
 }
 
 MainComponent::~MainComponent()
@@ -120,20 +124,7 @@ void MainComponent::changeState(nAudioState newState)
                 nPause.setEnabled(true);
                 break;
                 
-            case Paused:
-                nPlay.setEnabled(true);
-                nStop.setEnabled(true);
-                nPause.setEnabled(false);
-                nTSource.getCurrentPosition();
-                break;
-                
-            case Resume:
-                nPlay.setEnabled(true);
-                nStop.setEnabled(true);
-                nPause.setEnabled(false);
-                nTSource.getCurrentPosition();
-                nTSource.start();
-                break;
+       
                 
             case Stopping:
                 nPlay.setEnabled(true);
@@ -143,4 +134,40 @@ void MainComponent::changeState(nAudioState newState)
                 break;
         }
     }
+}
+
+void MainComponent::nOpenFileClicked()
+{
+    nChooser = std::make_unique<juce::FileChooser> ("Select a Wave file to play...", juce::File{}, "*.wav");
+    
+    auto chooserFlags = juce::FileBrowserComponent::openMode | juce::FileBrowserComponent::canSelectFiles;
+    
+    nChooser -> launchAsync(chooserFlags, [this] (const juce::FileChooser& fc)
+    {
+        auto file = fc.getResult();
+        
+        if (file != juce::File{})
+        {
+            auto* reader = nManager.createReaderFor (file);
+             
+            if (reader != nullptr)
+            {
+                auto newSource = std::make_unique<juce::AudioFormatReaderSource> (reader, true);
+                nTSource.setSource (newSource.get(), 0, nullptr, reader->sampleRate);
+                nPlay.setEnabled (true);
+                nReaderSource.reset (newSource.release());
+            }
+        }
+    });
+}
+
+
+void MainComponent::nPlayClicked()
+{
+    changeState (Starting);
+}
+
+void  MainComponent::nStopClicked()
+{
+    changeState (Stopping);
 }

@@ -30,14 +30,17 @@ public:
         Stopped,
         Starting,
         Playing,
-        Paused,
-        Resume,
+  //      Paused,
+  //      Resume,
         Stopping
     };
     
     nAudioState nState;
     
     void changeState(nAudioState newState);
+    void nOpenFileClicked();
+    void nPlayClicked();
+    void nStopClicked();
     
 private:
     //==============================================================================
@@ -54,8 +57,9 @@ private:
     
     //Classes
     std::unique_ptr<juce::FileChooser> nChooser;
-    std::unique_ptr<juce::AudioFormatReaderSource> nReaderSource;
+    
     juce::AudioFormatManager nManager;
+    std::unique_ptr<juce::AudioFormatReaderSource> nReaderSource;
     juce::AudioTransportSource nTSource;
     
 
