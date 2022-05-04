@@ -79,8 +79,8 @@ void MainComponent::resized()
 {
     nOpenFile.setBounds(getWidth() / 2 - 300, getHeight() / 2 - 200, 600, 25);
     nPlay.setBounds(getWidth() / 2 - 300, getHeight() / 2 - 150, 600, 25);
-    nPause.setBounds(getWidth() / 2 - 300, getHeight() / 2 - 100, 600, 25);
-    nStop.setBounds(getWidth() / 2 - 300, getHeight() / 2 - 50, 600, 25);
+    nPause.setBounds(getWidth() / 2 - 300, getHeight() / 2 - 50, 600, 25);
+    nStop.setBounds(getWidth() / 2 - 300, getHeight() / 2 - 100, 600, 25);
 }
 
 void MainComponent::changeListenerCallback(juce::ChangeBroadcaster *source)
